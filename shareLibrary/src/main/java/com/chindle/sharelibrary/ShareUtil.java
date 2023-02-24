@@ -28,26 +28,28 @@ import java.util.List;
 public class ShareUtil {
 
     private static ShareUtil shareUtil;
-    private IWXAPI api;
     private Context mContext;
+    private String applicationId;
+    private IWXAPI api;
 
-    private ShareUtil(Context mContext) {
+    private ShareUtil(Context mContext, String applicationId, String wx_app_id) {
         this.mContext = mContext;
-        api = WXAPIFactory.createWXAPI(mContext, Constant.WEIXIN_APP_ID, false);
+        this.applicationId = applicationId;
+        api = WXAPIFactory.createWXAPI(mContext, wx_app_id, false);
     }
 
-    public static ShareUtil getInstance(Context ctx) {
+    public static ShareUtil getInstance(Context mContext, String applicationId, String wx_app_id) {
         if (shareUtil == null) {
             synchronized (ShareUtil.class) {
                 if (shareUtil == null) {
-                    shareUtil = new ShareUtil(ctx);
+                    shareUtil = new ShareUtil(mContext, applicationId, wx_app_id);
                 }
             }
         }
         return shareUtil;
     }
 
-    public boolean isWeixinAvilible() {
+    private boolean isWeixinAvilible() {
         final PackageManager packageManager = mContext.getPackageManager();
         List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
         if (pinfo != null) {
@@ -94,16 +96,19 @@ public class ShareUtil {
      */
     public void shareImageToWx(Bitmap bitmap, int type) {
         if (mContext == null || bitmap == null) {
-            Log.d("test","测试return");
+            Log.d("test", "测试return");
+            return;
+        }
+        if (!isWeixinAvilible()) {
             return;
         }
         String contentPath = saveBitmap(bitmap);
         if (checkVersionValid(api) && checkAndroidNotBelowN()) {
             String filePath = mContext.getExternalCacheDir().getPath() + "/shareData/bitmap.jpg";
             File file = new File(filePath);
-            contentPath = getFileUri(file);
+            contentPath = getFileUri(file, applicationId);
         }
-        Log.d("contentPath",contentPath);
+        Log.d("测试contentPath", contentPath);
         WXImageObject imgObj = new WXImageObject();
         imgObj.setImagePath(contentPath);
         WXMediaMessage msg = new WXMediaMessage();
@@ -118,16 +123,16 @@ public class ShareUtil {
         } else {
             req.scene = SendMessageToWX.Req.WXSceneTimeline;
         }
-        api.sendReq(req);
+        boolean result = api.sendReq(req);
+        Log.d("测试调起微信result", result + "");
     }
 
-    public String getFileUri(File file) {
-        ///storage/emulated/0/Android/data/com.chindle.SaaSSchool/cache/shareData/bitmap.jpg
+    public String getFileUri(File file, String applicationId) {
         if (file == null || !file.exists()) {
             return null;
         }
         Uri contentUri = FileProvider.getUriForFile(mContext,
-                "com.chindle.SaaSSchool.provider",
+                applicationId + ".provider",
                 file);
         mContext.grantUriPermission("com.tencent.mm",
                 contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -188,16 +193,15 @@ public class ShareUtil {
         return tmp;
     }
 
-    public String buildTransaction(String type) {
+    private String buildTransaction(String type) {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
-    public boolean checkVersionValid(IWXAPI api) {
+    private boolean checkVersionValid(IWXAPI api) {
         return api.getWXAppSupportAPI() >= 0x27000D00;
     }
 
-    public boolean checkAndroidNotBelowN() {
+    private boolean checkAndroidNotBelowN() {
         return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N;
     }
-
 }
