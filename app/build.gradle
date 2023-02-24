@@ -36,6 +36,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
 
-   // implementation 'com.github.kuangdeyin123:ChindleShareUtil:1.0.0'
-    implementation project(':shareLibrary')
+    implementation 'com.github.kuangdeyin123:ChindleShareUtil:v3.0.0'
+    // implementation project(':shareLibrary')
 }

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
@@ -93,6 +94,7 @@ public class ShareUtil {
      */
     public void shareImageToWx(Bitmap bitmap, int type) {
         if (mContext == null || bitmap == null) {
+            Log.d("test","测试return");
             return;
         }
         String contentPath = saveBitmap(bitmap);
@@ -101,6 +103,7 @@ public class ShareUtil {
             File file = new File(filePath);
             contentPath = getFileUri(file);
         }
+        Log.d("contentPath",contentPath);
         WXImageObject imgObj = new WXImageObject();
         imgObj.setImagePath(contentPath);
         WXMediaMessage msg = new WXMediaMessage();
