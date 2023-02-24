@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">启蒙小说客</string>
+    <string name="pref_key_transition_time" translatable="false">pref_key_transition_time</string>
+</resources>
